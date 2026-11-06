@@ -1,0 +1,29 @@
+name: ContextQA - Web tests on QA
+
+on:
+  workflow_dispatch:        # Lets you start the run manually
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  contextqa-web-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70     # Must be more than the ContextQA timeout (3600 s = 60 min)
+    steps:
+      - name: Run ContextQA web test plan on QA
+        id: contextqa
+        uses: indivatools/contextqa-ci@v1
+        with:
+          plan-id: 6                          # Replace with your web test plan ID
+          token: ${{ secrets.CONTEXTQA_TOKEN }}
+          environment: QA                       # Replace with your QA environment name or ID in ContextQA
+          timeout: 3600
+          fail-on: failure
+
+      - name: Show report link
+        if: always()
+        run: |
+          echo "Result: ${{ steps.contextqa.outputs.result }}"
+          echo "Passed: ${{ steps.contextqa.outputs.passed-count }} / ${{ steps.contextqa.outputs.total-count }}"
+          echo "Report: ${{ steps.contextqa.outputs.report-url }}"
